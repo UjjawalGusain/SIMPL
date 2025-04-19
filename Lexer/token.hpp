@@ -2,7 +2,8 @@
 #include<iostream>
 
 enum class TokenType {
-    IF, ELSE, WHILE, FUNC, RETURN, PRINT,
+    IF, ELIF, ELSE,
+    WHILE, FUNC, RETURN, PRINT,
     IDENTIFIER, NUMBER, STRING,
     NUMBER_LITERAL, STRING_LITERAL,
     ASSIGN, PLUS, MINUS, DIVIDE, MULTIPLY, LPAREN, RPAREN, LBRACE, RBRACE, COMMA, SEMICOLON, 
@@ -13,6 +14,7 @@ enum class TokenType {
 inline std::ostream& operator<<(std::ostream& os, TokenType type) {
     switch (type) {
         case TokenType::IF: return os << "IF";
+        case TokenType::ELIF: return os << "ELIF";
         case TokenType::ELSE: return os << "ELSE";
         case TokenType::WHILE: return os << "WHILE";
         case TokenType::FUNC: return os << "FUNC";

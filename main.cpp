@@ -3,11 +3,17 @@
 #include <sstream>
 #include "Lexer/lexer.hpp"
 
-int main() {
-    std::ifstream inputFile("test_file.simpl");
+int main(int argc, char **argv) {
+    if(argc == 1) {
+        std::cerr << "Enter filename also\n";
+    } else if(argc > 2) {
+        std::cerr << "Too many arguments\n";
+    }
+    std::string filename = argv[1];
+    std::ifstream inputFile(filename);
 
     if (!inputFile.is_open()) {
-        std::cerr << "Failed to open test_file.simpl\n";
+        std::cerr << "Failed to " << filename << "\n";
         return 1;
     }
 

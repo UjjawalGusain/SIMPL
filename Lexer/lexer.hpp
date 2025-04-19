@@ -94,6 +94,8 @@ private:
             return Token(TokenType::STRING, val, startLine, startCol);
         } else if (val == "if") {
             return Token(TokenType::IF, val, startLine, startCol);
+        } else if(val == "elif") {
+            return Token(TokenType::ELIF, val, startLine, startCol);
         } else if (val == "else") {
             return Token(TokenType::ELSE, val, startLine, startCol);
         } else if (val == "while") {

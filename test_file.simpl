@@ -11,6 +11,11 @@ number y = 5;
 string msg = "Hello, World!";
 
 func add(number a, number b) {
+    if (a == 1) {
+        print(a);
+    } elif (a == 2) {
+        print(b);
+    }
     number result = a + b;
     return result;
 }
