@@ -1,0 +1,56 @@
+#include<iostream>
+#include"Lexer/lexer.hpp"
+
+int main() {
+    std::string code = R"(
+func main() {
+    number x = 10;
+    string msg = "Hello, SIMPL!";
+    if (x >= 10) {
+        print(msg);
+    }
+}
+
+number x = 10.0;
+number y = 5;
+string msg = "Hello, World!";
+
+func add(number a, number b) {
+    number result = a + b;
+    return result;
+}
+
+func factorial(number n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+x = add(x, y) * 2 + (3 - y) / 2;
+
+if ((x > y) && (x != 0) || !(x < 5)) {
+    print("x is large enough");
+} else {
+    print(msg);
+}
+
+while (x > 0) {
+    print(x);
+    x = x - 1;
+}
+
+)";
+
+    Lexer lexer(code);
+    Token token;
+
+    while ((token = lexer.getNextToken()).type != TokenType::END_OF_FILE) {
+        std::cout << "Token(" << token.type << ", \"" 
+                  << token.value << "\", line=" << token.line 
+                  << ", col=" << token.column << ")" << "\n";
+    }
+
+    return 0;
+}
