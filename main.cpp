@@ -1,47 +1,20 @@
-#include<iostream>
-#include"Lexer/lexer.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "Lexer/lexer.hpp"
 
 int main() {
-    std::string code = R"(
-func main() {
-    number x = 10;
-    string msg = "Hello, SIMPL!";
-    if (x >= 10) {
-        print(msg);
-    }
-}
+    std::ifstream inputFile("test_file.simpl");
 
-number x = 10.0;
-number y = 5;
-string msg = "Hello, World!";
-
-func add(number a, number b) {
-    number result = a + b;
-    return result;
-}
-
-func factorial(number n) {
-    if (n <= 1) {
+    if (!inputFile.is_open()) {
+        std::cerr << "Failed to open test_file.simpl\n";
         return 1;
-    } else {
-        return n * factorial(n - 1);
     }
-}
 
-x = add(x, y) * 2 + (3 - y) / 2;
-
-if ((x > y) && (x != 0) || !(x < 5)) {
-    print("x is large enough");
-} else {
-    print(msg);
-}
-
-while (x > 0) {
-    print(x);
-    x = x - 1;
-}
-
-)";
+    // Read entire file content
+    std::stringstream buffer;
+    buffer << inputFile.rdbuf();
+    std::string code = buffer.str();
 
     Lexer lexer(code);
     Token token;
