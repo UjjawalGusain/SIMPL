@@ -127,6 +127,24 @@ class BinaryExprNode : public ASTNode {
             line(line),
             col(col) {}
 };
+
+class UnaryExprNode : public ASTNode {
+    public:
+        std::unique_ptr<ASTNode> operand;
+        TokenType op;
+        int line, col;
+    
+        UnaryExprNode(
+            std::unique_ptr<ASTNode> operand,
+            TokenType op,
+            int line,
+            int col
+        ) : operand(std::move(operand)),
+            op(op),
+            line(line),
+            col(col) {}
+    };
+    
     
 
 class AssignmentNode : public ASTNode {
@@ -168,6 +186,24 @@ class FunctionNode : public ASTNode {
             line(line), col(col) {}
 
 };
+
+class CallExprNode : public ASTNode {
+    public:
+        std::string functionName;
+        std::vector<std::unique_ptr<ASTNode>> arguments;
+        int line, col;
+    
+        CallExprNode(
+            const std::string& functionName,
+            std::vector<std::unique_ptr<ASTNode>> arguments,
+            int line,
+            int col
+        ) : functionName(functionName),
+            arguments(std::move(arguments)),
+            line(line),
+            col(col) {}
+};
+    
 
 
 class WhileNode : public ASTNode {

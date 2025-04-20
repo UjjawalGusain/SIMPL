@@ -239,7 +239,7 @@ class Parser {
         std::unique_ptr<ASTNode> initExpr = NULL;
 
         if(match(TokenType::ASSIGN)) {
-            initExpr = parseExpession();
+            initExpr = parseExpression();
         }
         varDeclareList.push_back(std::make_unique<VarDeclareNode>(variableType, varName, std::move(initExpr)));
 
@@ -276,7 +276,7 @@ class Parser {
     Factor          ::= [ NOT | MINUS ] Primary
     */
 
-    std::unique_ptr<ASTNode> parseExpession() {
+    std::unique_ptr<ASTNode> parseExpression() {
         return parseLogicalOr();
     }
 
@@ -364,7 +364,7 @@ class Parser {
             Token opToken = previous();
 
             auto right = parseTerm();            
-            left = std::make_unique<ComparisonNode>(
+            left = std::make_unique<BinaryExprNode>(
                 std::move(left),
                 std::move(right),
                 opToken.type,
@@ -376,6 +376,355 @@ class Parser {
         return left;
     }
 
+    std::unique_ptr<ASTNode> parseTerm() {
+
+        auto left = parseFactor();
+
+        while(match(TokenType::MULTIPLY) || match(TokenType::DIVIDE)) {
+            Token opToken = previous();
+            auto right = parseTerm();            
+            left = std::make_unique<BinaryExprNode>(
+                std::move(left),
+                std::move(right),
+                opToken.type,
+                opToken.line,
+                opToken.column
+            );
+        }
+
+        return left;
+    }
+
+
+    std::unique_ptr<ASTNode> parseFactor() {
+        if (match(TokenType::NOT) || match(TokenType::MINUS)) {
+            Token opToken = previous();
+            auto operand = parseFactor();
+            return std::make_unique<UnaryExprNode>(
+                opToken.type,
+                std::move(operand),
+                opToken.line,
+                opToken.column
+            );
+        }
+    
+        return parsePrimary();
+    }
+
+
+
+    /*
+    Primary         ::= IDENTIFIER
+                  | NUMBER_LITERAL
+                  | STRING_LITERAL
+                  | LPAREN Expression RPAREN
+                  | CallExpression
+
+    CallExpression  ::= IDENTIFIER LPAREN [ ArgumentList ] RPAREN
+
+    ArgumentList    ::= Expression { COMMA Expression }
+    */
+
+    std::unique_ptr<ASTNode> parsePrimary() {
+        if(match(TokenType::IDENTIFIER)) {
+            
+            if(peek().type == TokenType::LPAREN) {
+                Token functionToken = previous();
+                return parseCallExpression(functionToken);
+            }
+            return parseIdentifier();
+        } 
+
+        if(match(TokenType::NUMBER_LITERAL)) {
+            return parseNumberLiteral();
+        }
+
+        if(match(TokenType::STRING_LITERAL)) {
+            return parseStringLiteral();
+        }
+
+        if(match(TokenType::LPAREN)) {
+            auto expression = parseExpression();
+            if(!match(TokenType::RPAREN)) {
+                reportError(") symbol not found");
+                return NULL;
+            }
+            return expression;
+        }
+
+        reportError("Unexpected expression found: (, ), number_literal, string_literal allowed");
+        return NULL;
+    }    
+
+    std::unique_ptr<ASTNode> parseCallExpression(Token &functionToken) {
+
+        if(functionToken.type != TokenType::IDENTIFIER) {
+            reportError("Missing identifier from function call");
+            return NULL;
+        }
+
+        if(!match(TokenType::LPAREN)) {
+            reportError("( missing");
+            return NULL;
+        }
+
+        std::vector<std::unique_ptr<ASTNode>> argumentList;
+
+        if (peek().type != TokenType::RPAREN) {
+            argumentList = parseArgumentList();
+        }
+
+        if (!match(TokenType::RPAREN)) {
+            reportError("Expected ) after function arguments");
+            return NULL;
+        }
+
+        return std::make_unique<CallExprNode>(
+            functionToken.value,     
+            std::move(argumentList),      
+            functionToken.line,
+            functionToken.column
+        );
+    }
+
+
+    std::vector<std::unique_ptr<ASTNode>> parseArgumentList() {
+        std::vector<std::unique_ptr<ASTNode>> argumentList;
+        auto argument1 = parseExpression();
+
+        argumentList.push_back(argument1);
+
+        while(match(TokenType::COMMA)) {
+            auto nextArgument = parseExpression();
+            argumentList.push_back(nextArgument);
+        }
+
+        return argumentList;
+    }
+
+
+    /*
+
+    (* Lexical tokens - just for clarity, these are terminals *)
+    NUMBER          ::= 'number'
+    STRING          ::= 'string'
+    */
+
+    std::unique_ptr<VarDeclareNode> parseNumber() {
+        Token typeToken = previous(); 
+    
+        if (!match(TokenType::IDENTIFIER)) {
+            reportError("Expected identifier after 'number'");
+            return NULL;
+        }
+    
+        Token nameToken = previous();  
+    
+        std::unique_ptr<ASTNode> initializer = NULL;
+        if (match(TokenType::EQ)) {
+            initializer = parseExpression();
+        }
+    
+        return std::make_unique<VarDeclareNode>(
+            typeToken.type,
+            nameToken,
+            std::move(initializer)
+        );
+    }
+
+    std::unique_ptr<VarDeclareNode> parseString() {
+        Token typeToken = previous(); 
+    
+        if (!match(TokenType::IDENTIFIER)) {
+            reportError("Expected identifier after 'string'");
+            return NULL;
+        }
+    
+        Token nameToken = previous();  
+    
+        std::unique_ptr<ASTNode> initializer = NULL;
+        if (match(TokenType::EQ)) {
+            initializer = parseExpression();
+        }
+    
+        return std::make_unique<VarDeclareNode>(
+            typeToken.type,
+            nameToken,
+            std::move(initializer)
+        );
+    }
+    
+    /*
+    
+    IDENTIFIER      ::= Letter { Letter | Digit | '_' }
+    NUMBER_LITERAL  ::= Digit { Digit }
+    STRING_LITERAL  ::= '"' { Character } '"'
+    
+    */
+
+    std::unique_ptr<ASTNode> parseIdentifier() {
+        Token idTok = previous();
+        return std::make_unique<VariableNode>(
+            idTok.value,     
+            idTok.line,
+            idTok.column
+        );
+    }
+
+    std::unique_ptr<ASTNode> parseNumberLiteral() {
+        Token idTok = previous();
+        return std::make_unique<NumberLiteralNode>(
+            idTok.value,     
+            idTok.line,
+            idTok.column
+        );
+    }
+
+    std::unique_ptr<ASTNode> parseStringLiteral() {
+        Token idTok = previous();
+        return std::make_unique<StringLiteralNode>(
+            idTok.value,     
+            idTok.line,
+            idTok.column
+        );
+    }
+
+    /*
+    => These are already handled in lexer, we dont have it in parser
+    LPAREN          ::= '(' 
+    RPAREN          ::= ')' 
+    LBRACE          ::= '{' 
+    RBRACE          ::= '}' 
+    COMMA           ::= ',' 
+    SEMICOLON       ::= ';' 
+
+    ASSIGN          ::= '='
+    PLUS            ::= '+'
+    MINUS           ::= '-'
+    MULTIPLY        ::= '*'
+    DIVIDE          ::= '/'
+
+    EQ              ::= '=='
+    NEQ             ::= '!='
+    LT              ::= '<'
+    GT              ::= '>'
+    LEQ             ::= '<='
+    GEQ             ::= '>='
+    
+    AND             ::= '&&'
+    OR              ::= '||'
+    NOT             ::= '!'
+
+    IF              ::= 'if'
+    ELIF            ::= 'elif'
+    ELSE            ::= 'else'
+    WHILE           ::= 'while'
+    FUNC            ::= 'func'
+    RETURN          ::= 'return'
+    PRINT           ::= 'print'
+    */
+
+
+
+
+    /*
+
+    (* If / Elif / Else *)
+    IfStatement     ::= IF LPAREN Expression RPAREN Statement
+                        { ELIF LPAREN Expression RPAREN Statement }
+                        [ ELSE Statement ]
+
+    (* Assignment *)
+    Assignment      ::= IDENTIFIER ASSIGN Expression SEMICOLON
+
+    
+
+    (* While Loop *)
+    WhileLoop       ::= WHILE LPAREN Expression RPAREN Statement
+ 
+    */
+
+    std::unique_ptr<ASTNode> parseIfStatement() {
+        Token ifToken = previous();  
+    
+        std::vector<std::pair<std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode>>> conditionBlocks;
+    
+        std::unique_ptr<ASTNode> condition = parseExpression();
+        if (!match(TokenType::LBRACE)) {
+            reportError("Expected '{' after if condition");
+            return NULL;
+        }
+        std::unique_ptr<ASTNode> ifBlock = parseBlock();
+        conditionBlocks.push_back({std::move(condition), std::move(ifBlock)});
+    
+        // For elif blocks
+        while (match(TokenType::ELIF)) {
+            std::unique_ptr<ASTNode> elifCondition = parseExpression();
+            if (!match(TokenType::LBRACE)) {
+                reportError("Expected '{' after elif condition");
+                return NULL;
+            }
+            std::unique_ptr<ASTNode> elifBlock = parseBlock();
+            conditionBlocks.push_back({std::move(elifCondition), std::move(elifBlock)});
+        }
+    
+        // For else block
+        std::unique_ptr<ASTNode> elseBranch = nullptr;
+        if (match(TokenType::ELSE)) {
+            if (!match(TokenType::LBRACE)) {
+                reportError("Expected '{' after else");
+                return NULL;
+            }
+            elseBranch = parseBlock();
+        }
+    
+        return std::make_unique<IfStatementNode>(
+            std::move(conditionBlocks),
+            std::move(elseBranch),
+            ifToken.line,
+            ifToken.column
+        );
+    }
+
+    std::unique_ptr<ASTNode> parseBlock() {
+
+        Token tok = previous();
+        std::vector<std::unique_ptr<ASTNode>> statements;
+
+        while(!match(TokenType::RBRACE)) {
+            statements.push_back(parseStatement());
+        }
+
+        return std::make_unique<BlockNode> (
+            std::move(statements),
+            tok.line,
+            tok.column
+        );
+    }
+
+    std::unique_ptr<ASTNode> parseAssignment() {
+        Token idTok = previous();  
+    
+        if (!match(TokenType::EQ)) {
+            reportError("= symbol not found");
+            return nullptr;
+        }
+    
+        std::unique_ptr<ASTNode> rightExpression = parseExpression();
+    
+        if (!match(TokenType::SEMICOLON)) {
+            reportError("; symbol not found after assignment");
+            return nullptr;
+        }
+    
+        return std::make_unique<AssignmentNode>(
+            std::make_unique<VariableNode>(idTok.value, idTok.line, idTok.column),
+            std::move(rightExpression),
+            idTok.line,
+            idTok.column
+        );
+    }
+    
     
 
 public:
