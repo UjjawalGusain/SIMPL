@@ -633,14 +633,6 @@ class Parser {
     IfStatement     ::= IF LPAREN Expression RPAREN Statement
                         { ELIF LPAREN Expression RPAREN Statement }
                         [ ELSE Statement ]
-
-    (* Assignment *)
-    Assignment      ::= IDENTIFIER ASSIGN Expression SEMICOLON
-
-    
-
-    (* While Loop *)
-    WhileLoop       ::= WHILE LPAREN Expression RPAREN Statement
  
     */
 
@@ -686,6 +678,10 @@ class Parser {
         );
     }
 
+    /*
+    Block           ::= LBRACE { Statement } RBRACE
+    */
+
     std::unique_ptr<ASTNode> parseBlock() {
 
         Token tok = previous();
@@ -701,6 +697,12 @@ class Parser {
             tok.column
         );
     }
+
+    /*
+        (* Assignment *)
+    Assignment      ::= IDENTIFIER ASSIGN Expression SEMICOLON
+
+    */
 
     std::unique_ptr<ASTNode> parseAssignment() {
         Token idTok = previous();  
@@ -724,6 +726,158 @@ class Parser {
             idTok.column
         );
     }
+
+    /*
+    WhileLoop       ::= WHILE LPAREN Expression RPAREN Statement
+    */
+
+    std::unique_ptr<ASTNode> parseWhileLoop() {
+        Token whileTok = previous();  
+    
+        if (!match(TokenType::LPAREN)) {
+            reportError("Expected '(' after 'while'");
+            return nullptr;
+        }
+    
+        auto conditionExpr = parseExpression();
+    
+        if (!match(TokenType::RPAREN)) {
+            reportError("Expected ')' after while condition");
+            return nullptr;
+        }
+    
+        auto bodyStmt = parseStatement();
+    
+        return std::make_unique<WhileNode>(
+            std::move(conditionExpr),
+            std::move(bodyStmt),
+            whileTok.line,
+            whileTok.column
+        );
+    }
+
+    /*
+    
+    (* Function Declaration *)
+    FunctionDecl    ::= FUNC IDENTIFIER LPAREN [ ParameterList ] RPAREN Block
+    ParameterList   ::= ( (NUMBER | STRING) IDENTIFIER )
+                        { COMMA (NUMBER | STRING) IDENTIFIER }
+    
+    */
+
+    std::vector<std::pair<std::string, std::string>> parseParameterList() {
+        std::vector<std::pair<std::string, std::string>> params;
+    
+        TokenType ty;
+        if      (match(TokenType::NUMBER)) ty = TokenType::NUMBER;
+        else if (match(TokenType::STRING)) ty = TokenType::STRING;
+        else {
+            reportError("Expected parameter type 'number' or 'string'");
+            return params;
+        }
+        Token typeTok = previous();
+    
+        if (!match(TokenType::IDENTIFIER)) {
+            reportError("Expected parameter name after type");
+            return params;
+        }
+        Token nameTok = previous();
+    
+        params.emplace_back(typeTok.value, nameTok.value);
+    
+        while (match(TokenType::COMMA)) {
+            if      (match(TokenType::NUMBER)) ty = TokenType::NUMBER;
+            else if (match(TokenType::STRING)) ty = TokenType::STRING;
+            else {
+                reportError("Expected parameter type after ','");
+                break;
+            }
+            typeTok = previous();
+    
+            if (!match(TokenType::IDENTIFIER)) {
+                reportError("Expected parameter name after type");
+                break;
+            }
+            nameTok = previous();
+    
+            params.emplace_back(typeTok.value, nameTok.value);
+        }
+    
+        return params;
+    }
+    
+    std::unique_ptr<ASTNode> parseFunctionDecl() {
+        Token funcTok = previous();  
+    
+        if (!match(TokenType::IDENTIFIER)) {
+            reportError("Expected function name after 'func'");
+            return nullptr;
+        }
+        Token nameTok = previous();
+    
+        if (!match(TokenType::LPAREN)) {
+            reportError("Expected '(' after function name");
+            return nullptr;
+        }
+    
+        std::vector<std::pair<std::string, std::string>> params;
+        if (peek().type != TokenType::RPAREN) {
+            params = parseParameterList();
+        }
+    
+        if (!match(TokenType::RPAREN)) {
+            reportError("Expected ')' after parameters");
+            return nullptr;
+        }
+    
+        if (!match(TokenType::LBRACE)) {
+            reportError("Expected '{' to start function body");
+            return nullptr;
+        }
+        auto body = parseBlock();
+    
+        return std::make_unique<FunctionNode>(
+            nameTok.value,
+            std::move(params),
+            std::move(body),
+            funcTok.line,
+            funcTok.column
+        );
+    }
+    
+
+    /*
+    (* Print *)
+    PrintStatement  ::= PRINT LPAREN Expression RPAREN SEMICOLON
+    */
+
+    std::unique_ptr<ASTNode> Parser::parsePrintStatement() {
+        Token printTok = previous(); 
+    
+        if (!match(TokenType::LPAREN)) {
+            reportError("Expected '(' after 'print'");
+            return nullptr;
+        }
+    
+        auto expr = parseExpression();
+    
+        if (!match(TokenType::RPAREN)) {
+            reportError("Expected ')' after print expression");
+            return nullptr;
+        }
+    
+        if (!match(TokenType::SEMICOLON)) {
+            reportError("Expected ';' after print statement");
+            return nullptr;
+        }
+    
+        return std::make_unique<PrintNode>(
+            std::move(expr),
+            printTok.line,
+            printTok.column
+        );
+    }
+    
     
     
 
