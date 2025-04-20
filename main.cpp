@@ -2,7 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include "Lexer/lexer.hpp"
-#include "Parser/parser.hpp" // Include your parser header
+#include "Parser/parser.hpp" 
+#include "Parser/parser.cpp" 
 
 int main(int argc, char **argv) {
     if(argc == 1) {

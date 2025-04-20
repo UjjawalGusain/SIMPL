@@ -73,9 +73,9 @@ class VarDeclareNode : public ASTNode {
 
 class NumberLiteralNode : public ASTNode {
     public:
-        int value;
+        std::string value;
         int line, col;
-        NumberLiteralNode(int value, int line, int col) : value(value), line(line), col(col) {}
+        NumberLiteralNode(std::string value, int line, int col) : value(value), line(line), col(col) {}
 };
 
 class StringLiteralNode : public ASTNode {
