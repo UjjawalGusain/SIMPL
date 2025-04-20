@@ -3,7 +3,27 @@
 #include<memory>
 #include<vector>
 #include<string>
-#include<Lexer/token.hpp>
+#include<../Lexer/token.hpp>
+
+class ASTNode;
+class ReturnNode;
+class VariableNode;
+class DeclarationNode;
+class VarDeclareNode;
+class NumberLiteralNode;
+class StringLiteralNode;
+class IfStatementNode;
+class ComparisonNode;
+class LogicalExprNode;
+class BinaryExprNode;
+class UnaryExprNode;
+class AssignmentNode;
+class PrintNode;
+class FunctionNode;
+class CallExprNode;
+class WhileNode;
+class BlockNode;
+
 
 class ASTNode {
     public:
@@ -12,13 +32,14 @@ class ASTNode {
 
 class ReturnNode : public ASTNode {
     public:
-        int line, col;
         std::unique_ptr<ASTNode> returnExpression;
+        int line, col;
     
         ReturnNode(
             std::unique_ptr<ASTNode> returnExpression, int line, int col
         ) : returnExpression(std::move(returnExpression)), line(line), col(col) {}
 };
+
 
 class VariableNode : public ASTNode {
     public:
@@ -66,10 +87,10 @@ class StringLiteralNode : public ASTNode {
 
 class IfStatementNode : public ASTNode {
     public:
-        int line, col;
 
         std::vector<std::pair<std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode>>> conditionBlocks;
         std::unique_ptr<ASTNode> elseBranch;
+        int line, col;
 
         IfStatementNode(
             std::vector<std::pair<std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode>>> conditionBlocks,
@@ -84,9 +105,9 @@ class IfStatementNode : public ASTNode {
 
 class ComparisonNode : public ASTNode {
     public:
-        int line, col;
         std::unique_ptr<ASTNode> leftExpression, rightExpression;
         TokenType op;
+        int line, col;
 
         ComparisonNode(
             std::unique_ptr<ASTNode> leftExpression, std::unique_ptr<ASTNode> rightExpression,
@@ -99,9 +120,9 @@ class ComparisonNode : public ASTNode {
 
 class LogicalExprNode : public ASTNode {
     public:
-        int line, col;
         std::unique_ptr<ASTNode> leftExpression, rightExpression;
         TokenType op;
+        int line, col;
 
         LogicalExprNode(
             std::unique_ptr<ASTNode> leftExpression, std::unique_ptr<ASTNode> rightExpression,
@@ -149,8 +170,8 @@ class UnaryExprNode : public ASTNode {
 
 class AssignmentNode : public ASTNode {
     public:
-        int line, col;
         std::unique_ptr<ASTNode> left, rightExpression;
+        int line, col;
 
         AssignmentNode(
             std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> rightExpression, int line, int col
@@ -171,9 +192,9 @@ class PrintNode : public ASTNode {
 class FunctionNode : public ASTNode {
     public:
         std::string name;
-        int line, col;
         std::vector<std::pair<std::string, std::string>> parameters;
         std::unique_ptr<ASTNode> functionBlock;
+        int line, col;
 
         FunctionNode(
             const std::string& name,
@@ -208,8 +229,8 @@ class CallExprNode : public ASTNode {
 
 class WhileNode : public ASTNode {
     public:
-        int line, col;
         std::unique_ptr<ASTNode> conditionStatement, whileBlock;
+        int line, col;
 
         WhileNode(
             std::unique_ptr<ASTNode> conditionStatement,

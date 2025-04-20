@@ -22,4 +22,6 @@ $(EXE): $(OBJ)
 
 # Clean everything generated
 clean:
-	rm -f $(OBJ) $(EXE)
+	@if exist $(OBJ) del /Q $(OBJ)
+	@if exist $(EXE) del /Q $(EXE)
+
