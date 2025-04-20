@@ -6,7 +6,7 @@ func main() {
     }
 }
 
-number x = 10.0;
+number x = 10;
 number y = 5;
 string msg = "Hello, World!";
 
@@ -26,17 +26,4 @@ func factorial(number n) {
     } else {
         return n * factorial(n - 1);
     }
-}
-
-x = add(x, y) * 2 + (3 - y) / 2;
-
-if ((x > y) && (x != 0) || !(x < 5)) {
-    print("x is large enough");
-} else {
-    print(msg);
-}
-
-while (x > 0) {
-    print(x);
-    x = x - 1;
 }

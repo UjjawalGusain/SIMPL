@@ -121,6 +121,7 @@ void Parser::reportError(const std::string &message)
               << ", col " << token.column << "]: "
               << message << "\n"
               << " (Token: " << token.type << ")\n";
+              exit(1);
 }
 
 Token Parser::peek() { return tokens[current]; }
@@ -199,12 +200,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement()
 /* ReturnStatement ::= RETURN Expression SEMICOLON */
 std::unique_ptr<ASTNode> Parser::parseReturnStatement()
 {
-    if (!match(TokenType::RETURN))
-    {
-        reportError("return keyword not found");
-        return NULL;
-    }
-
     std::unique_ptr<ASTNode> parsedExpression = parseExpression();
 
     if (!match(TokenType::SEMICOLON))
@@ -225,21 +220,7 @@ std::unique_ptr<ASTNode> Parser::parseReturnStatement()
 std::unique_ptr<ASTNode> Parser::parseDeclaration()
 {
 
-    TokenType variableType;
-
-    if (match(TokenType::NUMBER))
-    {
-        variableType = TokenType::NUMBER;
-    }
-    else if (match(TokenType::STRING))
-    {
-        variableType = TokenType::STRING;
-    }
-    else
-    {
-        reportError("Unknown data type found. Expected 'number' or 'string'");
-        return NULL;
-    }
+    TokenType variableType = previous().type;
 
     std::vector<std::unique_ptr<VarDeclareNode>> declarations = parseVarList(variableType);
 

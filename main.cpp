@@ -4,6 +4,7 @@
 #include "Lexer/lexer.hpp"
 #include "Parser/parser.hpp" 
 #include "Parser/parser.cpp" 
+#include "Parser/astPrinter.hpp"
 
 int main(int argc, char **argv) {
     if(argc == 1) {
@@ -37,14 +38,20 @@ int main(int argc, char **argv) {
         tokens.push_back(token);
     } while(token.type != TokenType::END_OF_FILE);
 
+    // 🔸 Print Tokens
+    std::cout << "\n--- Tokens ---\n";
+    for (const Token& t : tokens) {
+        std::cout << "Token(" << static_cast<int>(t.type) << ", \"" << t.value << "\", line: " << t.line << ", col: " << t.column << ")\n";
+    }
+
     // Run parser
     Parser parser(tokens);
-    std::unique_ptr<ASTNode> root = parser.parseProgram(); // Assuming parseProgram() is your entry
+    std::unique_ptr<ASTNode> root = parser.parseProgram(); 
 
-    // Optionally, you can now print the AST or traverse it
+    std::cout << "\n--- AST ---\n";
     if (root) {
         std::cout << "Parsing completed successfully!\n";
-        // printAST(root.get());  // if you have a printAST function
+        printAST(root.get()); 
     } else {
         std::cerr << "Parsing failed.\n";
     }
