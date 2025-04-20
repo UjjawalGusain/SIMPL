@@ -10,6 +10,46 @@ class ASTNode {
         virtual ~ASTNode() = default;
 };
 
+class ReturnNode : public ASTNode {
+    public:
+        int line, col;
+        std::unique_ptr<ASTNode> returnExpression;
+    
+        ReturnNode(
+            std::unique_ptr<ASTNode> returnExpression, int line, int col
+        ) : returnExpression(std::move(returnExpression)), line(line), col(col) {}
+};
+
+class VariableNode : public ASTNode {
+    public:
+        std::string name;
+        int line, col;
+    
+        VariableNode(const std::string& name, int line, int col)
+            : name(name), line(line), col(col) {}
+};
+
+class DeclarationNode : public ASTNode {
+    public:
+        TokenType type; // NUMBER or STRING
+        std::vector<std::unique_ptr<VarDeclareNode>> declarations;
+    
+        DeclarationNode(TokenType type, std::vector<std::unique_ptr<VarDeclareNode>> declarations)
+            : type(type), declarations(std::move(declarations)) {}
+    };
+    
+
+class VarDeclareNode : public ASTNode {
+    public:
+        TokenType type;
+        Token name;
+        std::unique_ptr<ASTNode> initializer;
+    
+        VarDeclareNode(TokenType type, Token name, std::unique_ptr<ASTNode> initializer)
+            : type(type), name(name), initializer(std::move(initializer)) {}
+};
+    
+
 class NumberLiteralNode : public ASTNode {
     public:
         int value;
@@ -40,15 +80,7 @@ class IfStatementNode : public ASTNode {
             line(line), col(col) {}
 };
 
-class ReturnNode : public ASTNode {
-    public:
-        int line, col;
-        std::unique_ptr<ASTNode> returnExpression;
-    
-        ReturnNode(
-            std::unique_ptr<ASTNode> returnExpression, int line, int col
-        ) : returnExpression(std::move(returnExpression)), line(line), col(col) {}
-};
+
 
 class ComparisonNode : public ASTNode {
     public:
@@ -77,6 +109,26 @@ class LogicalExprNode : public ASTNode {
         ) : leftExpression(std::move(leftExpression)), rightExpression(std::move(rightExpression)), op(op), line(line), col(col) {}
 };
 
+class BinaryExprNode : public ASTNode {
+    public:
+        std::unique_ptr<ASTNode> left, right;
+        TokenType op;
+        int line, col;
+    
+        BinaryExprNode(
+            std::unique_ptr<ASTNode> left,
+            std::unique_ptr<ASTNode> right,
+            TokenType op,
+            int line,
+            int col
+        ) : left(std::move(left)),
+            right(std::move(right)),
+            op(op),
+            line(line),
+            col(col) {}
+};
+    
+
 class AssignmentNode : public ASTNode {
     public:
         int line, col;
@@ -87,14 +139,7 @@ class AssignmentNode : public ASTNode {
         ) : left(std::move(left)), rightExpression(std::move(rightExpression)), line(line), col(col) {}
 };
 
-class VariableNode : public ASTNode {
-    public:
-        std::string name;
-        int line, col;
-    
-        VariableNode(const std::string& name, int line, int col)
-            : name(name), line(line), col(col) {}
-};
+
 
 class PrintNode : public ASTNode {
     public:
@@ -147,5 +192,4 @@ class BlockNode : public ASTNode {
         BlockNode(std::vector<std::unique_ptr<ASTNode>> statements, int line, int col)
             : statements(std::move(statements)), line(line), col(col) {}
 };
-
 
