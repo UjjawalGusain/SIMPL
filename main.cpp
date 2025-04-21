@@ -3,8 +3,8 @@
 #include <sstream>
 #include "Lexer/lexer.hpp"
 #include "Parser/parser.hpp" 
-#include "Parser/parser.cpp" 
 #include "Parser/astPrinter.hpp"
+#include "Semantic_analyzer/include/semantic_analyzer.hpp"
 
 int main(int argc, char **argv) {
     if(argc == 1) {
@@ -55,6 +55,17 @@ int main(int argc, char **argv) {
     } else {
         std::cerr << "Parsing failed.\n";
     }
+
+    try {
+        SemanticAnalyzer semanticAnalyzer;
+        semanticAnalyzer.analyze(root.get());  // Perform semantic checks
+        std::cout << "\n--- Semantic Analysis ---\n";
+        std::cout << "Semantic analysis completed successfully!\n";
+    } catch (const std::runtime_error& e) {
+        std::cerr << "Semantic error: " << e.what() << "\n";
+        return 1;
+    }
+
 
     return 0;
 }

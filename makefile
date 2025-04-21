@@ -1,8 +1,16 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -g -I./Lexer
+CXXFLAGS = -std=c++17 -Wall -Wextra -g -I./Lexer -I./Parser -I./SemanticAnalyzer/include
 
-SRC = main.cpp
+# Add specific source files to the list with correct directory names
+SRC = main.cpp \
+      Parser/parser.cpp \
+      semantic_analyzer/src/semantic_analyzer.cpp \
+      semantic_analyzer/src/symbol_table.cpp
+
+# Object files corresponding to the above source files
 OBJ = $(SRC:.cpp=.o)
+
+# Executable file
 EXE = simpl_lexer
 
 # Default target: builds everything except running
@@ -12,16 +20,14 @@ all: $(EXE)
 run: $(EXE)
 	./$(EXE) test_file.simpl
 
-# How to link
+# How to link object files into the final executable
 $(EXE): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # How to compile object files
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean everything generated
+# Clean everything generated (works on Unix-like systems)
 clean:
-	@if exist $(OBJ) del /Q $(OBJ)
-	@if exist $(EXE) del /Q $(EXE)
-
+	rm -f $(OBJ) $(EXE)
