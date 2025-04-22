@@ -6,7 +6,7 @@ func main() {
     }
 }
 
-number x = "asdasd;
+number x = 5;
 number y = 5;
 string msg = "Hello, World!";
 
