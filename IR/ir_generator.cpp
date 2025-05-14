@@ -1,17 +1,6 @@
 #include "ir_generator.hpp"
 #include <sstream>
 
-std::string IRGenerator::generateTemp() {
-    return "t" + std::to_string(tempVarCounter++);
-}
-
-IR IRGenerator::generate(const ASTNode* root) {
-    instructions.clear();
-    tempVarCounter = 0;
-    generateFromNode(root);
-    return instructions;
-}
-
 std::string IRGenerator::generateFromNode(const ASTNode* node) {
     if (auto num = dynamic_cast<const NumberLiteralNode*>(node)) {
         std::string temp = generateTemp();
@@ -26,13 +15,15 @@ std::string IRGenerator::generateFromNode(const ASTNode* node) {
         std::string right = generateFromNode(bin->right.get());
         std::string result = generateTemp();
         std::string op;
+
         switch (bin->op) {
-            case TokenType::PLUS: op = "add"; break;
+            case TokenType::PLUS:  op = "add"; break;
             case TokenType::MINUS: op = "sub"; break;
-            case TokenType::STAR: op = "mul"; break;
-            case TokenType::SLASH: op = "div"; break;
-            default: op = "unknown";
+            case TokenType::MULT:  op = "mul"; break;  
+            case TokenType::DIV:   op = "div"; break;  
+            default:               op = "unknown";
         }
+
         instructions.push_back({op, left, right, result});
         return result;
     }
@@ -47,5 +38,7 @@ std::string IRGenerator::generateFromNode(const ASTNode* node) {
             generateFromNode(stmt.get());
         }
     }
+
     return "";
 }
+
