@@ -10,9 +10,11 @@
 class SemanticAnalyzer {
 public:
     void analyze(ASTNode* root);
-
+    const SymbolTable& getSymbolTable() const { return symbolTable; }
+    void printFunctionTable() const;
 private:
     SymbolTable symbolTable;
+    bool inGlobalScope = true;
 
     void visit(ASTNode* node);
 

@@ -1,11 +1,10 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -g -I./Lexer -I./Parser -I./SemanticAnalyzer/include
+CXXFLAGS = -std=c++17 -Wall -Wextra -g -I./Lexer -I./Parser -I./semantic_analyzer/include
 
 # Add specific source files to the list with correct directory names
-SRC = main.cpp \
-      Parser/parser.cpp \
-      semantic_analyzer/src/semantic_analyzer.cpp \
-      semantic_analyzer/src/symbol_table.cpp
+SRC = main.cpp $(wildcard Lexer/*.cpp) $(wildcard Parser/*.cpp) $(wildcard semantic_analyzer/src/*.cpp)
+
+
 
 # Object files corresponding to the above source files
 OBJ = $(SRC:.cpp=.o)

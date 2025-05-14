@@ -33,6 +33,26 @@ void printAST(const ASTNode* node, int indent) {
         printAST(bin->left.get(), indent + 1);
         printAST(bin->right.get(), indent + 1);
     }
+    else if (auto cmp = dynamic_cast<const ComparisonNode*>(node)) {
+        printIndent(indent);
+        std::cout << "Comparison(";
+    
+        // Pretty-print the operator
+        switch (cmp->op) {
+            case TokenType::EQ: std::cout << "=="; break;
+            case TokenType::NEQ: std::cout << "!="; break;
+            case TokenType::LT: std::cout << "<"; break;
+            case TokenType::GT: std::cout << ">"; break;
+            case TokenType::LEQ: std::cout << "<="; break;
+            case TokenType::GEQ: std::cout << ">="; break;
+            default: std::cout << "UnknownOp"; break;
+        }
+    
+        std::cout << ")\n";
+        printAST(cmp->leftExpression.get(), indent + 1);
+        printAST(cmp->rightExpression.get(), indent + 1);
+    }
+    
     else if (auto assign = dynamic_cast<const AssignmentNode*>(node)) {
         printIndent(indent);
         std::cout << "Assignment\n";

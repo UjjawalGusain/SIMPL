@@ -8,6 +8,7 @@ func main() {
 
 number x = 5;
 number y = 5;
+y = 5;
 string msg = "Hello, World!";
 
 func add(number a, number b) {

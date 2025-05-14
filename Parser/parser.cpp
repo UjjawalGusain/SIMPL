@@ -281,8 +281,8 @@ Assignment      ::= IDENTIFIER ASSIGN Expression SEMICOLON
 std::unique_ptr<ASTNode> Parser::parseAssignment()
 {
     Token idTok = previous();
-
-    if (!match(TokenType::EQ))
+    Token c = peek();
+    if (!match(TokenType::ASSIGN))
     {
         reportError("= symbol not found");
         return nullptr;
@@ -326,7 +326,6 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement()
     }
     std::unique_ptr<ASTNode> ifBlock = parseBlock();
     conditionBlocks.push_back({std::move(condition), std::move(ifBlock)});
-
     // For elif blocks
     while (match(TokenType::ELIF))
     {
@@ -662,7 +661,8 @@ std::unique_ptr<ASTNode> Parser::parseTerm()
     while (match(TokenType::MULTIPLY) || match(TokenType::DIVIDE))
     {
         Token opToken = previous();
-        auto right = parseTerm();
+        // auto right = parseTerm();
+        auto right = parseFactor();
         left = std::make_unique<BinaryExprNode>(
             std::move(left),
             std::move(right),

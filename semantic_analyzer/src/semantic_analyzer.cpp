@@ -4,6 +4,20 @@
 #include <iostream>
 #include <../Parser/ast.hpp>
 
+struct FunctionSignature {
+    std::vector<Type> paramTypes;
+};
+
+std::unordered_map<std::string, FunctionSignature> functionTable;
+
+std::string typeToString(Type type) {
+    switch (type) {
+        case Type::NUMBER: return "number";
+        case Type::STRING: return "string";
+        case Type::UNKNOWN: return "unknown";
+        default: return "invalid";
+    }
+}
 
 void SemanticAnalyzer::analyze(ASTNode* root) {
     visit(root);
@@ -35,11 +49,36 @@ void SemanticAnalyzer::visit(ASTNode* node) {
     }
 }
 
+// void SemanticAnalyzer::visitDeclaration(const DeclarationNode* node) {
+//     Type type = node->type == TokenType::NUMBER ? Type::NUMBER : Type::STRING;
+
+//     for (const auto& decl : node->declarations) {
+//         std::string name = decl->name.value;
+//         if (symbolTable.isDeclared(name)) {
+//             throw std::runtime_error("Variable already declared: " + name);
+//         }
+
+//         Type initType = Type::UNKNOWN;
+//         if (decl->initializer) {
+//             initType = evaluateExpression(decl->initializer);
+//             if (initType != type) {
+//                 throw std::runtime_error("Type mismatch in initialization of variable: " + name);
+//             }
+//         }
+
+//         symbolTable.declare(name, type);
+//         if (decl->initializer) {
+//             symbolTable.assign(name);  
+//         }
+//     }
+// }
+
 void SemanticAnalyzer::visitDeclaration(const DeclarationNode* node) {
     Type type = node->type == TokenType::NUMBER ? Type::NUMBER : Type::STRING;
 
     for (const auto& decl : node->declarations) {
         std::string name = decl->name.value;
+
         if (symbolTable.isDeclared(name)) {
             throw std::runtime_error("Variable already declared: " + name);
         }
@@ -52,9 +91,18 @@ void SemanticAnalyzer::visitDeclaration(const DeclarationNode* node) {
             }
         }
 
-        symbolTable.declare(name, type);
+        if (inGlobalScope) {
+            symbolTable.declareGlobal(name, type);
+        } else {
+            symbolTable.declare(name, type);
+        }
+
+        if (decl->initializer) {
+            symbolTable.assign(name);
+        }
     }
 }
+
 
 void SemanticAnalyzer::visitVariable(const VariableNode* node) {
     if (!symbolTable.isDeclared(node->name)) {
@@ -116,16 +164,36 @@ void SemanticAnalyzer::visitReturn(const ReturnNode* node) {
 }
 
 void SemanticAnalyzer::visitFunction(const FunctionNode* node) {
-    symbolTable.enterScope();
+    std::vector<Type> paramTypes;
     for (const auto& param : node->parameters) {
         std::string typeStr = param.first;
-        std::string name = param.second;
         Type t = typeStr == "number" ? Type::NUMBER : Type::STRING;
+        paramTypes.push_back(t);
+    }
+
+    if (functionTable.find(node->name) != functionTable.end()) {
+        std::cerr << "Error: Function " << node->name << " already declared!" << std::endl;
+        return;
+    }
+
+    functionTable[node->name] = FunctionSignature{paramTypes};
+
+    inGlobalScope = false;
+    symbolTable.enterScope();
+    for (size_t i = 0; i < node->parameters.size(); ++i) {
+        const auto& param = node->parameters[i];
+        std::string name = param.second;
+        Type t = paramTypes[i];
         symbolTable.declare(name, t);
     }
+
     visit(node->functionBlock.get());
     symbolTable.exitScope();
+
+    inGlobalScope = true;
 }
+
+
 
 void SemanticAnalyzer::visitCallExpr(const CallExprNode* node) {
     for (const auto& arg : node->arguments) {
@@ -200,3 +268,46 @@ Type SemanticAnalyzer::visitLogicalExpr(const LogicalExprNode* node) {
     }
     return Type::NUMBER;
 }
+
+void SemanticAnalyzer::printFunctionTable() const {
+    std::cout << "\n--- Function Table ---\n";
+    for (const auto& [name, signature] : functionTable) {
+        std::cout << "Function: " << name << "(";
+        for (size_t i = 0; i < signature.paramTypes.size(); ++i) {
+            std::cout << typeToString(signature.paramTypes[i]);
+            if (i < signature.paramTypes.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << ")\n";
+    }
+}
+
+
+void SymbolTable::print() const {
+    std::cout << "\n--- Symbol Table ---\n";
+
+    std::cout << "Global Scope:\nsize: ";
+
+
+    for (const auto& [name, info] : globalScope) {
+        std::string typeStr = (info.type == Type::NUMBER ? "NUMBER" :
+                               info.type == Type::STRING ? "STRING" : "UNKNOWN");
+        std::cout << "  " << name << " -> Type: " << typeStr
+                  << ", Initialized: " << (info.isInitialized ? "Yes" : "No") << "\n";
+    }
+
+    int scopeLevel = scopes.size();
+    for (auto it = scopes.rbegin(); it != scopes.rend(); ++it, --scopeLevel) {
+        std::cout << "Scope Level " << scopeLevel << ":\n";
+        for (const auto& [name, info] : *it) {
+            std::string typeStr = (info.type == Type::NUMBER ? "NUMBER" :
+                                   info.type == Type::STRING ? "STRING" : "UNKNOWN");
+            std::cout << "  " << name << " -> Type: " << typeStr
+                      << ", Initialized: " << (info.isInitialized ? "Yes" : "No") << "\n";
+        }
+    }
+}
+
+
+
