@@ -1,18 +1,37 @@
+
 #pragma once
 #include <string>
-#include <unordered_map>
 #include <vector>
-#include <stack>
-#include "../IR/ir.hpp"
 
-class Interpreter {
-public:
-    void execute(const std::vector<IRInstruction>& instructions);
+struct IRInstruction {
+    std::string opcode;
+    std::string arg1;
+    std::string arg2;
+    std::string result;
 
-private:
-    std::unordered_map<std::string, std::string> variables;
-
-    std::string evaluate(const std::string& operand);
-    bool toBool(const std::string& val);
+    IRInstruction(std::string opcode, std::string arg1 = "", std::string arg2 = "", std::string result = "")
+        : opcode(std::move(opcode)), arg1(std::move(arg1)), arg2(std::move(arg2)), result(std::move(result)) {}
 };
 
+class IR {
+public:
+    std::vector<IRInstruction> instructions;
+
+    void add(const IRInstruction& instr) {
+        instructions.push_back(instr);
+    }
+
+    void clear() {
+        instructions.clear();
+    }
+
+    void print() const {
+        for (const auto& instr : instructions) {
+            printf("%s %s %s %s\n",
+                instr.opcode.c_str(),
+                instr.arg1.c_str(),
+                instr.arg2.c_str(),
+                instr.result.c_str());
+        }
+    }
+};
