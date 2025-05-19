@@ -24,7 +24,7 @@ void IRGenerator::generate(ASTNode* node) {
     } 
     else if (auto* declNode = dynamic_cast<DeclarationNode*>(node)) {
         for (auto& varDecl : declNode->declarations) {
-            std::string varName = varDecl->name.lexeme;
+            std::string varName = varDecl->name.value;
             std::string initVal = varDecl->initializer ? generateExpression(varDecl->initializer.get()) : "0";
             symbolTable[varName] = varName;
             ir.add({"var", varName});
@@ -133,12 +133,12 @@ std::string IRGenerator::generateExpression(ASTNode* node) {
         std::string op;
 
         switch (compNode->op) {
-            case TokenType::EQUAL: op = "eq"; break;
-            case TokenType::NOT_EQUAL: op = "neq"; break;
-            case TokenType::LESS: op = "lt"; break;
-            case TokenType::LESS_EQUAL: op = "le"; break;
-            case TokenType::GREATER: op = "gt"; break;
-            case TokenType::GREATER_EQUAL: op = "ge"; break;
+            case TokenType::EQ: op = "eq"; break;
+            case TokenType::NEQ : op = "neq"; break;
+            case TokenType::LT: op = "lt"; break;
+            case TokenType::LEQ : op = "le"; break;
+            case TokenType::GT: op = "gt"; break;
+            case TokenType::GEQ: op = "ge"; break;
             default: op = "unknown"; break;
         }
         ir.add({op, left, right, temp});

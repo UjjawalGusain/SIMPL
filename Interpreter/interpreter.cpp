@@ -1,5 +1,6 @@
 #include "interpreter.hpp"
 #include <iostream>
+#include <stack>
 
 std::string Interpreter::evaluate(const std::string& operand) {
     if (variables.find(operand) != variables.end()) {

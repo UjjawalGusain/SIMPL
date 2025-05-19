@@ -2,6 +2,17 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <unordered_map>
+
+class Interpreter {
+public:
+    void execute(const std::vector<IRInstruction>& instructions);
+
+private:
+    bool toBool(const std::string& val);
+    std::string evaluate(const std::string& operand);
+    std::unordered_map<std::string, std::string> variables;
+};
 
 struct IRInstruction {
     std::string opcode;
