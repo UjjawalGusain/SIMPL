@@ -4,7 +4,7 @@
 std::string IRGenerator::generateFromNode(const ASTNode* node) {
     if (auto num = dynamic_cast<const NumberLiteralNode*>(node)) {
         std::string temp = generateTemp();
-        instructions.push_back({"load_const", std::to_string(num->value), "", temp});
+        instructions.push_back({"load_const", num->value, "", temp});
         return temp;
     }
     else if (auto var = dynamic_cast<const VariableNode*>(node)) {
@@ -19,8 +19,8 @@ std::string IRGenerator::generateFromNode(const ASTNode* node) {
         switch (bin->op) {
             case TokenType::PLUS:  op = "add"; break;
             case TokenType::MINUS: op = "sub"; break;
-            case TokenType::MULT:  op = "mul"; break;  
-            case TokenType::DIV:   op = "div"; break;  
+            case TokenType::MULTIPLY:  op = "mul"; break;  
+            case TokenType::DIVIDE:   op = "div"; break;  
             default:               op = "unknown";
         }
 
