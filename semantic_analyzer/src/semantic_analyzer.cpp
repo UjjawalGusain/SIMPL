@@ -9,6 +9,8 @@ struct FunctionSignature {
 };
 
 std::unordered_map<std::string, FunctionSignature> functionTable;
+// std::vector<std::unordered_map<std::string, SymbolInfo>> symbolTable;
+
 
 std::string typeToString(Type type) {
     switch (type) {

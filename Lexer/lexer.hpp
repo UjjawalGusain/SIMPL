@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <token.hpp>
-#include <cctype>
+#include <cctype>*-
 
 class Lexer {
 public:
@@ -112,7 +112,6 @@ private:
     }
 
     Token tokenizeString(int startLine, int startCol) {
-        // skip opening quote
         advance();
         std::string val;
         while (peek() != '"' && peek() != '\0') {
@@ -120,7 +119,7 @@ private:
             advance();
         }
         if (peek() == '"') {
-            advance(); // skip closing quote
+            advance(); 
             return Token(TokenType::STRING_LITERAL, val, startLine, startCol);
         }
         return Token(TokenType::UNKNOWN, val, startLine, startCol);

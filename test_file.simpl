@@ -6,14 +6,12 @@ func main() {
     }
 }
 
-number x = 5;
 number y = 5;
 y = 5;
 string msg = "Hello, World!";
 
-while ( x + y < 15 ) {
+while ( y < 15 ) {
     string ms = "Hello, SIMPL!";
-    x = x + 1;
     y = y + 1;
 }
 

@@ -29,6 +29,7 @@ public:
     bool isInitialized(const std::string& name) const;
     Type getType(const std::string& name) const;
     bool declareGlobal(const std::string&, Type);
+    std::unordered_map<std::string, SymbolInfo> getScope() const;
 
 private:
     std::vector<std::unordered_map<std::string, SymbolInfo>> scopes;

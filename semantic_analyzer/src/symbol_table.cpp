@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 
+std::unordered_map<std::string, SymbolInfo> symbolTable;
 void SymbolTable::enterScope() {
     scopes.emplace_back();
 }
@@ -37,14 +38,33 @@ void SymbolTable::exitScope() {
 //     return true;
 // }
 
+// bool SymbolTable::declare(const std::string& name, Type type) {
+//     if (scopes.empty()) {
+//         // Declare in global scope
+//         if (globalScope.find(name) != globalScope.end()) {
+//             return false; // already declared globally
+//         }
+
+//         globalScope[name] = {type, false};
+//         return true;
+//     }
+
+//     auto& currentScope = scopes.back();
+//     if (currentScope.find(name) != currentScope.end()) {
+//         return false; // already declared in current scope
+//     }
+//     currentScope[name] = {type, false};
+//     return true;
+// }
+
 bool SymbolTable::declare(const std::string& name, Type type) {
     if (scopes.empty()) {
         // Declare in global scope
         if (globalScope.find(name) != globalScope.end()) {
             return false; // already declared globally
         }
-
         globalScope[name] = {type, false};
+        symbolTable[name] = {type, false};  // Also add here
         return true;
     }
 
@@ -53,8 +73,10 @@ bool SymbolTable::declare(const std::string& name, Type type) {
         return false; // already declared in current scope
     }
     currentScope[name] = {type, false};
+    symbolTable[name] = {type, false};  // Also add here
     return true;
 }
+
 
 bool SymbolTable::declareGlobal(const std::string& name, Type type) {
     if (globalScope.find(name) != globalScope.end()) {
@@ -156,5 +178,9 @@ Type SymbolTable::getType(const std::string& name) const {
         }
     }
     return Type::UNKNOWN;
+}
+
+std::unordered_map<std::string, SymbolInfo> SymbolTable::getScope() const {
+    return symbolTable;
 }
 
