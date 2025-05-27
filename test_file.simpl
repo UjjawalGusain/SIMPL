@@ -13,10 +13,19 @@ string msg = "Hello, World!";
 while ( y < 15 ) {
     string ms = "Hello, SIMPL!";
     y = y + 1;
+    while(y < 14) {
+        string m = "Hi";
+    }
 }
+
+
+
+y = 10;
+
 
 func add(number a, number b) {
     if (a == 1) {
+        number f = 9;
         print(a);
     } elif (a == 2) {
         print(b);
@@ -24,6 +33,7 @@ func add(number a, number b) {
     number result = a + b;
     return result;
 }
+
 
 func factorial(number n) {
     if (n <= 1) {

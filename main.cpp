@@ -8,20 +8,6 @@
 // #include "IR/ir_generator.hpp"   // For future to add ir
 // #include "Interpreter/interpreter.hpp"   // For future to add interpreter
 
-void printSymbolTable(const std::unordered_map<std::string, SymbolInfo>& symbolTable) { 
-    std::cout << "Symbol Table:\n";
-    for (const auto& [varName, info] : symbolTable) {
-        std::string typeStr;
-        switch (info.type) {
-            case Type::NUMBER: typeStr = "int"; break;
-            case Type::STRING: typeStr = "string"; break;
-            default: typeStr = "unknown"; break;
-        }
-        std::cout << "  " << varName << " -> Type: " << typeStr
-                  << ", Initialized: " << (info.isInitialized ? "Yes" : "No") << "\n";
-    }
-    std::cout << std::endl;
-}
 
 
 
@@ -81,8 +67,8 @@ int main(int argc, char **argv) {
         std::cout << "\n--- Semantic Analysis ---\n";
         std::cout << "Semantic analysis completed successfully!\n";
 
-        semanticAnalyzer.getSymbolTable().print();
-        semanticAnalyzer.printFunctionTable();
+        semanticAnalyzer.printAllSymbolTables();
+        // semanticAnalyzer.printFunctionTable();
 
         // const std::unordered_map<std::string, SymbolInfo> symbolTable = semanticAnalyzer.getSymbolTable().getScope();
         // printSymbolTable(symbolTable);
