@@ -1,0 +1,33 @@
+func main() {
+    number x = 5;
+    number y = 10;
+    string msg1 = "x is less than 5";
+    string msg2 = "x is 5";
+    string msg3 = "x is greater than 5";
+
+    if (x < 5) {
+        print(msg1);
+    } elif (x == 5) {
+        print(msg2);
+    } else {
+        print(msg3);
+    }
+
+    x = 7;
+    if (x < 5) {
+        print(msg1);
+    } elif (x == 5) {
+        print(msg2);
+    } else {
+        print(msg3); 
+    }
+
+    x = 3;
+    if (x < 5) {
+        print(msg1); 
+    } elif (x == 5) {
+        print(msg2);
+    } else {
+        print(msg3);
+    }
+}

@@ -12,6 +12,42 @@ std::string generateUniqueScopeName(const std::string &baseName, int line, int c
     return ss.str();
 }
 
+Type SemanticAnalyzer::consolidateFunctionReturnTypes() {
+    if (foundReturnTypesInCurrentFunction.empty()) {
+        return Type::VOID;
+    }
+
+    Type inferredType = Type::UNKNOWN;
+    bool hasNonVoidReturn = false;
+    bool hasVoidReturn = false;
+
+    for (Type t : foundReturnTypesInCurrentFunction) {
+        if (t == Type::VOID) {
+            hasVoidReturn = true;
+        } else {
+            hasNonVoidReturn = true;
+            if (inferredType == Type::UNKNOWN) {
+                inferredType = t;
+            } else if (inferredType != t) {
+                throw std::runtime_error("Function '" + currentFunctionName +
+                                         "' has inconsistent return types. Found " +
+                                         typeToString(inferredType) + " and " + typeToString(t) + ".");
+            }
+        }
+    }
+
+    if (hasNonVoidReturn && hasVoidReturn) {
+        throw std::runtime_error("Function '" + currentFunctionName +
+                                 "' has mixed return types (some return values, some do not).");
+    }
+
+    if (hasNonVoidReturn) {
+        return inferredType;
+    } else { 
+        return Type::VOID;
+    }
+}
+
 SymbolTable &SemanticAnalyzer::getCurrentSymbolTable() {
     auto it = allSymbolTables.find(currentScopeName);
     if (it == allSymbolTables.end()) {
@@ -172,6 +208,7 @@ void SemanticAnalyzer::visitBlock(const BlockNode *node) {
     }
 }
 
+
 void SemanticAnalyzer::visitReturn(const ReturnNode *node) {
     Type actualReturnType = Type::VOID;
     if (node->returnExpression) {
@@ -182,34 +219,13 @@ void SemanticAnalyzer::visitReturn(const ReturnNode *node) {
         throw std::runtime_error("Return statement found outside of a function.");
     }
 
-    if (currentFunctionExpectedReturnType == Type::UNKNOWN) {
-    } else if (currentFunctionExpectedReturnType == Type::VOID) {
-        if (actualReturnType != Type::VOID) {
-            throw std::runtime_error("Function '" + currentFunctionName + "' is declared void but returns a value of type " + typeToString(actualReturnType) + ".");
-        }
-    } else { // Expected a non-void return type
-        if (actualReturnType == Type::VOID && node->returnExpression) {
-            throw std::runtime_error("Function '" + currentFunctionName + "' expects to return " + typeToString(currentFunctionExpectedReturnType) + " but return expression is void.");
-        } else if (actualReturnType == Type::VOID && !node->returnExpression) {
-            throw std::runtime_error("Function '" + currentFunctionName + "' expects to return " + typeToString(currentFunctionExpectedReturnType) + " but return statement has no value.");
-        }
-
-        if (actualReturnType != currentFunctionExpectedReturnType) {
-            throw std::runtime_error("Type mismatch in return statement for function '" + currentFunctionName +
-                                     "'. Expected " + typeToString(currentFunctionExpectedReturnType) +
-                                     ", got " + typeToString(actualReturnType) + ".");
-        }
-    }
+    foundReturnTypesInCurrentFunction.push_back(actualReturnType);
 }
 
 void SemanticAnalyzer::visitFunction(const FunctionNode *node) {
     std::string functionName = node->name;
 
-    Type declaredReturnType = Type::UNKNOWN;
-    if (functionName == "add" || functionName == "factorial")
-        declaredReturnType = Type::NUMBER;
-    if (functionName == "main")
-        declaredReturnType = Type::VOID;
+    Type declaredReturnType = Type::UNKNOWN; 
 
     std::vector<std::pair<Type, std::string>> paramInfoList;
     for (const auto &param : node->parameters) {
@@ -235,11 +251,13 @@ void SemanticAnalyzer::visitFunction(const FunctionNode *node) {
 
     std::string previousScopeName = currentScopeName;
     std::string previousFunctionName = currentFunctionName;
-    Type previousFunctionExpectedReturnType = currentFunctionExpectedReturnType;
+    Type previousFunctionExpectedReturnType = currentFunctionExpectedReturnType; 
 
     currentScopeName = funcUniqueScopeName;
     currentFunctionName = functionName;
-    currentFunctionExpectedReturnType = declaredReturnType;
+    currentFunctionExpectedReturnType = declaredReturnType; 
+
+    foundReturnTypesInCurrentFunction.clear();
 
     SymbolTable &funcTable = getCurrentSymbolTable();
 
@@ -261,9 +279,18 @@ void SemanticAnalyzer::visitFunction(const FunctionNode *node) {
             }
         }
     }
+
+    Type inferredReturnType = consolidateFunctionReturnTypes();
+
+    globalTable.updateFunctionReturnType(functionName, inferredReturnType);
+
+    if (functionName == "main" && inferredReturnType != Type::VOID) {
+         throw std::runtime_error("Function 'main' must not return a value. Detected return type: " + typeToString(inferredReturnType));
+    }
+
     currentScopeName = previousScopeName;
     currentFunctionName = previousFunctionName;
-    currentFunctionExpectedReturnType = previousFunctionExpectedReturnType;
+    currentFunctionExpectedReturnType = previousFunctionExpectedReturnType; 
 }
 
 void SemanticAnalyzer::visitCallExpr(const CallExprNode *node) {

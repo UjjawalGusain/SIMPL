@@ -1,5 +1,5 @@
 #include "ir_generator.hpp"
-#include "ast.hpp"  
+#include "ast.hpp"
 #include <iostream>
 #include <cassert>
 
@@ -26,19 +26,18 @@ void IRGenerator::generate(ASTNode* node) {
         for (auto& varDecl : declNode->declarations) {
             std::string varName = varDecl->name.value;
             std::string initVal = varDecl->initializer ? generateExpression(varDecl->initializer.get()) : "0";
-            symbolTable[varName] = varName;
-            ir.add({"var", varName});
+            ir.add({"var", varName});  
             ir.add({"assign", varName, initVal});
         }
     }
     else if (auto* assignNode = dynamic_cast<AssignmentNode*>(node)) {
         std::string lhs = dynamic_cast<VariableNode*>(assignNode->left.get())->name;
         std::string rhs = generateExpression(assignNode->rightExpression.get());
-        ir.add({"assign", lhs, rhs});
+        ir.add({"assign", lhs, rhs}); 
     }
     else if (auto* printNode = dynamic_cast<PrintNode*>(node)) {
         std::string val = generateExpression(printNode->expression.get());
-        ir.add({"print", val});
+        ir.add({"print", val}); 
     }
     else if (auto* blockNode = dynamic_cast<BlockNode*>(node)) {
         for (auto& stmt : blockNode->statements) {
@@ -47,27 +46,24 @@ void IRGenerator::generate(ASTNode* node) {
     }
     else if (auto* ifNode = dynamic_cast<IfStatementNode*>(node)) {
         std::string endLabel = newLabel();
-
         for (size_t i = 0; i < ifNode->conditionBlocks.size(); ++i) {
             auto& cond = ifNode->conditionBlocks[i].first;
             auto& block = ifNode->conditionBlocks[i].second;
 
             std::string condVal = generateExpression(cond.get());
-            std::string nextLabel = (i == ifNode->conditionBlocks.size() - 1 && !ifNode->elseBranch) ? endLabel : newLabel();
+            std::string nextLabel = newLabel();
 
-            ir.add({"ifz_goto", condVal, nextLabel});
+            ir.add({"ifz_goto", condVal, nextLabel});  
             generate(block.get());
-
-            if (i != ifNode->conditionBlocks.size() - 1 || ifNode->elseBranch) {
-                ir.add({"goto", endLabel});
-                ir.add({"label", nextLabel});
-            }
+            ir.add({"goto", endLabel});  
+            ir.add({"label", nextLabel});  
         }
+
         if (ifNode->elseBranch) {
-            generate(ifNode->elseBranch.get());
+            generate(ifNode->elseBranch.get()); 
         }
 
-        ir.add({"label", endLabel});
+        ir.add({"label", endLabel}); 
     }
     else if (auto* whileNode = dynamic_cast<WhileNode*>(node)) {
         std::string startLabel = newLabel();
@@ -77,14 +73,13 @@ void IRGenerator::generate(ASTNode* node) {
         std::string condVal = generateExpression(whileNode->conditionStatement.get());
         ir.add({"ifz_goto", condVal, endLabel});
         generate(whileNode->whileBlock.get());
-        ir.add({"goto", startLabel});
-        ir.add({"label", endLabel});
+        ir.add({"goto", startLabel});  
+        ir.add({"label", endLabel});  
     }
     else if (auto* funcNode = dynamic_cast<FunctionNode*>(node)) {
         ir.add({"func_start", funcNode->name});
         for (auto& param : funcNode->parameters) {
-            ir.add({"param", param.second});
-            symbolTable[param.first] = param.second;
+            ir.add({"param", param.second});  
         }
         generate(funcNode->functionBlock.get());
         ir.add({"func_end", funcNode->name});
@@ -108,7 +103,7 @@ std::string IRGenerator::generateExpression(ASTNode* node) {
         return "\"" + strNode->value + "\"";
     }
     else if (auto* varNode = dynamic_cast<VariableNode*>(node)) {
-        return varNode->name;
+        return varNode->name;  
     }
     else if (auto* binaryNode = dynamic_cast<BinaryExprNode*>(node)) {
         std::string left = generateExpression(binaryNode->left.get());
@@ -120,7 +115,9 @@ std::string IRGenerator::generateExpression(ASTNode* node) {
             case TokenType::PLUS: op = "add"; break;
             case TokenType::MINUS: op = "sub"; break;
             case TokenType::MULTIPLY: op = "mul"; break;
-            case TokenType::DIVIDE: op = "div"; break;
+            case TokenType::DIVIDE: 
+                op = "div"; 
+                break;
             default: op = "unknown"; break;
         }
         ir.add({op, left, right, temp});

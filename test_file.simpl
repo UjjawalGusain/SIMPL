@@ -1,44 +1,66 @@
-func main() {
-    number x = 10;
-    string msg = "Hello, SIMPL!";
-    if (x >= 10) {
-        print(msg);
+func factorial(number n) {
+    number result = 1;
+    number currentN = n;
+    if (currentN < 0) {
+        return 1;
     }
-}
-
-number y = 5;
-y = 5;
-string msg = "Hello, World!";
-
-while ( y < 15 ) {
-    string ms = "Hello, SIMPL!";
-    y = y + 1;
-    while(y < 14) {
-        string m = "Hi";
+    while (currentN > 1) {
+        result = result * currentN;
+        currentN = currentN - 1;
     }
-}
-
-
-
-y = 10;
-
-
-func add(number a, number b) {
-    if (a == 1) {
-        number f = 9;
-        print(a);
-    } elif (a == 2) {
-        print(b);
-    }
-    number result = a + b;
     return result;
 }
 
-
-func factorial(number n) {
-    if (n <= 1) {
+func isEven(number num) {
+    number remainder = num / 2;
+    number check = remainder * 2;
+    if (check == num) {
         return 1;
     } else {
-        return n * factorial(n - 1);
+        return 0;
     }
+}
+
+func sumFactorialsUpTo(number limit, string messagePrefix) {
+    number currentNum = 0;
+    number totalSumOfFactorials = 0;
+    print("Hello");
+    print(messagePrefix);
+    while (currentNum <= limit) {
+        number factVal = factorial(currentNum);
+        totalSumOfFactorials = totalSumOfFactorials + factVal;
+
+        print("  Factorial of ");
+        print(currentNum);
+        print(" is ");
+        print(factVal);
+
+        number evenFlag = isEven(currentNum);
+        if (evenFlag == 1) {
+            print(" (Even number)");
+        } else {
+            print(" (Odd number)");
+        }
+        print("!");
+        currentNum = currentNum + 1;
+    }
+    return totalSumOfFactorials;
+}
+
+func main() {
+    number limit = 4;
+    string introMessage = "Calculating sum of factorials up to ";
+    print(introMessage);
+    print(limit);
+    print(":");
+    string mes = "--- Detailed Factorial Summation ---";
+    number finalSum = sumFactorialsUpTo(limit, mes);
+    
+    print("--- Final Result ---");
+    
+    print("Total sum of factorials up to ");
+    print(limit);
+    print(" is: ");
+    print(finalSum);
+    print("!");
 }

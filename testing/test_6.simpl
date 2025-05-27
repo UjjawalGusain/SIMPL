@@ -1,0 +1,31 @@
+func add(number x, number y) {
+    number sum = x + y;
+    return sum;
+}
+
+func multiply(number val1, number val2) {
+    number product = val1 * val2;
+    return product;
+}
+
+func greet(string name) {
+    print("Hello, ");
+    print(name);
+    print("!");
+    return "Greeting complete";
+}
+
+func main() {
+    number num1 = 5;
+    number num2 = 7;
+
+    number resultAdd = add(num1, num2);
+    print(resultAdd); 
+
+    number resultMult = multiply(resultAdd, num2);
+    print(resultMult); 
+
+    string userName = "Alice";
+    string greetingStatus = greet(userName);
+    print(greetingStatus); 
+}

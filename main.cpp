@@ -5,11 +5,9 @@
 #include "Parser/parser.hpp" 
 #include "Parser/astPrinter.hpp"
 #include "Semantic_analyzer/include/semantic_analyzer.hpp"
-// #include "IR/ir_generator.hpp"   // For future to add ir
-// #include "Interpreter/interpreter.hpp"   // For future to add interpreter
-
-
-
+#include "IR/ir_generator.hpp"  
+#include "IR/ir.hpp"   
+#include "Interpreter/interpreter.hpp"   
 
 int main(int argc, char **argv) {
     if(argc == 1) {
@@ -28,12 +26,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Read entire file content
     std::stringstream buffer;
     buffer << inputFile.rdbuf();
     std::string code = buffer.str();
 
-    // Run lexer
     Lexer lexer(code);
     std::vector<Token> tokens;
     Token token;
@@ -43,13 +39,11 @@ int main(int argc, char **argv) {
         tokens.push_back(token);
     } while(token.type != TokenType::END_OF_FILE);
 
-    //  Print Tokens
     std::cout << "\n--- Tokens ---\n";
     for (const Token& t : tokens) {
         std::cout << "Token(" << static_cast<int>(t.type) << ", \"" << t.value << "\", line: " << t.line << ", col: " << t.column << ")\n";
     }
 
-    // Run parser
     Parser parser(tokens);
     std::unique_ptr<ASTNode> root = parser.parseProgram(); 
 
@@ -63,33 +57,28 @@ int main(int argc, char **argv) {
 
     try {
         SemanticAnalyzer semanticAnalyzer;
-        semanticAnalyzer.analyze(root.get());  // Perform semantic checks
+        semanticAnalyzer.analyze(root.get());  
         std::cout << "\n--- Semantic Analysis ---\n";
         std::cout << "Semantic analysis completed successfully!\n";
 
         semanticAnalyzer.printAllSymbolTables();
-        // semanticAnalyzer.printFunctionTable();
-
-        // const std::unordered_map<std::string, SymbolInfo> symbolTable = semanticAnalyzer.getSymbolTable().getScope();
-        // printSymbolTable(symbolTable);
     } catch (const std::runtime_error& e) {
         std::cerr << "Semantic error: " << e.what() << "\n";
         return 1;
     }
 
-    // // Step 1: Generate Intermediate Representation (IR)
-    // IRGenerator irGenerator;           // Create an instance of IRGenerator
-    // IR ir = irGenerator.generate(root.get());  // Generate IR from the AST
+    
+    IRGenerator irGenerator;           
+    irGenerator.generate(root.get()); 
 
-    // std::cout << "\n--- Intermediate Representation (IR) ---\n";
-    // // Print out the IR instructions
-    // for (const auto& instruction : ir) {
-    //     std::cout << instruction.op << " " << instruction.arg1 << " " << instruction.arg2 << " -> " << instruction.result << "\n";
-    // }
+    const IR& ir = irGenerator.getIR();
+    ir.print();
 
-    // // Step 2: Execute IR using Interpreter
-    // Interpreter interpreter;           // Create an instance of the Interpreter
-    // interpreter.execute(ir);          // Execute the IR
+    std::cout << "\n--- Program Output (from Interpreter) ---\n";
+    TACInterpreter interpreter(ir); // Create an interpreter instance with the generated IR
+    interpreter.execute();          // Execute the IR
+    std::cout << "-------------------------------------------\n";
+
 
     return 0;
 }

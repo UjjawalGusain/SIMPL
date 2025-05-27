@@ -1,0 +1,27 @@
+func localScopeTest() {
+    number x = 20;
+    print("Local x in function: ");
+    print(x); 
+}
+func main() {
+    number outerI = 0;
+    while (outerI < 3) {
+        print("Outer loop: ");
+        print(outerI);
+        number innerJ = 0; 
+        while (innerJ < 2) {
+            print("  Inner loop: ");
+            print(innerJ);
+            innerJ = innerJ + 1;
+        }
+        outerI = outerI + 1;
+    }
+
+    number x = 10;
+    print("Global-like x: ");
+    print(x); 
+    
+    localScopeTest();
+    print("Global-like x after function call: ");
+    print(x); 
+}

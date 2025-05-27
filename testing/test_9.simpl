@@ -1,0 +1,26 @@
+func main() {
+    number t = 1;
+    number f = 0;
+
+    print("AND operations:");
+    print(t && t); 
+    print(t && f); 
+    print(f && t); 
+    print(f && f); 
+
+    print("OR operations:");
+    print(t || t);  
+    print(t || f);  
+    print(f || t);  
+    print(f || f);  
+
+    print("NOT operations:");
+    print(!t);   
+    print(!f);   
+
+    print("Combined logical:");
+    number val1 = 5;
+    number val2 = 0;
+    print((val1 > 0) && (val2 == 0)); 
+    print((val1 < 0) || (val2 != 0)); 
+}

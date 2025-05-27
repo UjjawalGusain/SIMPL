@@ -1,32 +1,25 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -g -I./Lexer -I./Parser -I./semantic_analyzer/include
+CXXFLAGS = -std=c++17 -Wall -Wextra -g -I./Lexer -I./Parser -I./semantic_analyzer/include -I./IR -I./CodeGeneration -I./Interpreter
 
-# Add specific source files to the list with correct directory names
-SRC = main.cpp $(wildcard Lexer/*.cpp) $(wildcard Parser/*.cpp) $(wildcard semantic_analyzer/src/*.cpp)
-
+SRC = main.cpp $(wildcard Lexer/*.cpp) $(wildcard Parser/*.cpp) $(wildcard semantic_analyzer/src/*.cpp) $(wildcard IR/*.cpp) $(wildcard CodeGeneration/*.cpp) $(wildcard Interpreter/*.cpp)
 
 
-# Object files corresponding to the above source files
 OBJ = $(SRC:.cpp=.o)
 
-# Executable file
 EXE = simpl_lexer
 
-# Default target: builds everything except running
 all: $(EXE)
 
-# Separate target to build and run
 run: $(EXE)
 	./$(EXE) test_file.simpl
 
-# How to link object files into the final executable
 $(EXE): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# How to compile object files
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean everything generated (works on Unix-like systems)
 clean:
-	rm -f $(OBJ) $(EXE)
+	del /Q /F $(subst /,\,$(OBJ)) $(EXE) 2>nul
+	for /d %%D in (Lexer Parser semantic_analyzer\src IR CodeGeneration Interpreter) do (del /Q /F %%D\*.o 2>nul)
+

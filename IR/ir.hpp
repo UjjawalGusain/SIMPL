@@ -9,6 +9,8 @@ struct IRInstruction {
     std::string arg2;
     std::string result;
 
+    IRInstruction() = default;
+
     IRInstruction(std::string opcode, std::string arg1 = "", std::string arg2 = "", std::string result = "")
         : opcode(std::move(opcode)), arg1(std::move(arg1)), arg2(std::move(arg2)), result(std::move(result)) {}
 };

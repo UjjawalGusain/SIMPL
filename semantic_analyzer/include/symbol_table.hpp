@@ -53,6 +53,9 @@ public:
     void exitScope();
     bool declare(const std::string &name, Type type, bool isInitialized = false);
     bool declareFunction(const std::string &name, Type returnType, const std::vector<std::pair<Type, std::string>> &params);
+    // --- ADD THIS LINE ---
+    void updateFunctionReturnType(const std::string& name, Type newType);
+    // ---------------------
     bool assign(const std::string &name);
     bool isDeclared(const std::string &name) const;
     bool isInitialized(const std::string &name) const;
@@ -61,6 +64,7 @@ public:
 
     const std::string &getCurrentScopeName() const { return currentScopeName; }
     std::unordered_map<std::string, SymbolInfo> getScope() const;
+
 
 private:
     std::vector<std::unordered_map<std::string, SymbolInfo>> scopes;

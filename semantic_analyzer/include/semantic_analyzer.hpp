@@ -16,12 +16,15 @@ public:
     const SymbolTable &getSymbolTable(const std::string &scopeName) const;
     void printAllSymbolTables() const;
     int currentLoopDepth = 0;
+    Type consolidateFunctionReturnTypes();
+
 
 private:
     std::unordered_map<std::string, std::unique_ptr<SymbolTable>> allSymbolTables;
     std::string currentScopeName;
     std::string currentFunctionName;
     Type currentFunctionExpectedReturnType;
+    std::vector<Type> foundReturnTypesInCurrentFunction;
 
     void visit(ASTNode *node);
 
@@ -43,6 +46,7 @@ private:
     Type visitStringLiteral();
     Type visitComparisonExpr(const ComparisonNode *node);
     Type visitLogicalExpr(const LogicalExprNode *node);
+
 
     SymbolTable &getCurrentSymbolTable();
 };

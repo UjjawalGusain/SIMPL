@@ -1,48 +1,48 @@
-
 #pragma once
+
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <variant> 
+#include <unordered_map> 
+#include <stack>   
 
-class Interpreter {
-public:
-    void execute(const std::vector<IRInstruction>& instructions);
+#include "../IR/ir.hpp" 
 
+using VMValue = std::variant<long long, std::string>;
+
+struct CallFrame {
+    int return_address;
+    std::unordered_map<std::string, VMValue> local_variables;
+};
+
+struct VMVariable {
+    VMValue value;
+};
+
+class TACInterpreter {
 private:
-    bool toBool(const std::string& val);
-    std::string evaluate(const std::string& operand);
-    std::unordered_map<std::string, std::string> variables;
-};
+    const IR& ir;
 
-struct IRInstruction {
-    std::string opcode;
-    std::string arg1;
-    std::string arg2;
-    std::string result;
+    VMValue last_return_value; 
 
-    IRInstruction(std::string opcode, std::string arg1 = "", std::string arg2 = "", std::string result = "")
-        : opcode(std::move(opcode)), arg1(std::move(arg1)), arg2(std::move(arg2)), result(std::move(result)) {}
-};
+    std::unordered_map<std::string, int> labels;
+    std::unordered_map<std::string, int> function_entry_points;
 
-class IR {
+    std::stack<VMValue> arg_passing_stack;
+
+    std::stack<CallFrame> call_stack;
+
+    VMValue get_operand_value(const std::string& operand_str);
+
+    void set_variable_value(const std::string& var_name, VMValue val);
+
+    void pre_scan_for_labels_and_functions();
+
 public:
-    std::vector<IRInstruction> instructions;
+    TACInterpreter(const IR& intermediate_representation);
 
-    void add(const IRInstruction& instr) {
-        instructions.push_back(instr);
-    }
-
-    void clear() {
-        instructions.clear();
-    }
-
-    void print() const {
-        for (const auto& instr : instructions) {
-            printf("%s %s %s %s\n",
-                instr.opcode.c_str(),
-                instr.arg1.c_str(),
-                instr.arg2.c_str(),
-                instr.result.c_str());
-        }
-    }
+    void execute();
 };
+
+bool isNumericLiteral(const std::string& s);
+bool isStringLiteral(const std::string& s);

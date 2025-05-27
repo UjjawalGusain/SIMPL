@@ -1,0 +1,49 @@
+func isEven(number num) {
+    number remainder = num / 2;
+    number check = remainder * 2;
+    if (check == num) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+func sumUpTo(number limit) {
+    number currentSum = 0;
+    number i = 1;
+    while (i <= limit) {
+        currentSum = currentSum + i;
+        i = i + 1;
+    }
+    return currentSum;
+}
+
+func main() {
+    number startNum = 1;
+    number endNum = 10;
+    number totalSum = 0;
+
+    print("Numbers and their even/odd status:");
+    while (startNum <= endNum) {
+        print(startNum);
+        number evenCheck = isEven(startNum);
+        if (evenCheck == 1) {
+            print("  is Even");
+        } else {
+            print("  is Odd");
+        }
+        startNum = startNum + 1;
+    }
+
+    print("Sum of numbers up to 5:");
+    number sum5 = sumUpTo(5);
+    print(sum5);
+
+    print("Sum of numbers up to 10:");
+    number sum10 = sumUpTo(10);
+    print(sum10);
+
+    print("Final check: is 55 even?");
+    number is55Even = isEven(sum10);
+    print(is55Even);
+}

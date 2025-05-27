@@ -1,0 +1,8 @@
+func main() {
+    number myNumber = 123;
+    string myString = "Hello, SIMPL World!";
+    print(myNumber);
+    print(myString);
+    myNumber = 456;
+    print(myNumber);
+}

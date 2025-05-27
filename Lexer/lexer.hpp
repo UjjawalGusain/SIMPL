@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <token.hpp>
-#include <cctype>*-
+#include <cctype>
 
 class Lexer {
 public:

@@ -163,7 +163,26 @@ std::unique_ptr<ASTNode> Parser::parseStatement()
     }
     else if (match(TokenType::IDENTIFIER))
     {
-        return parseAssignment();
+        Token identifierToken = previous(); 
+        if (peek().type == TokenType::ASSIGN)
+        {
+            return parseAssignment();
+        }
+        else if (peek().type == TokenType::LPAREN)
+        {
+            std::unique_ptr<ASTNode> callNode = parseCallExpression(identifierToken);
+            if (!match(TokenType::SEMICOLON))
+            {
+                reportError("Expected ';' after function call statement");
+                return nullptr;
+            }
+            return callNode;
+        }
+        else
+        {
+            reportError("Unexpected token after identifier in statement");
+            return nullptr;
+        }
     }
     else if (match(TokenType::IF))
     {
@@ -191,9 +210,8 @@ std::unique_ptr<ASTNode> Parser::parseStatement()
     }
     else
     {
-        // Error handling if the token does not match any expected statements
-        reportError("Unexpeced token in statement");
-        return NULL;
+        reportError("Unexpected token in statement");
+        return nullptr;
     }
 }
 
@@ -201,13 +219,18 @@ std::unique_ptr<ASTNode> Parser::parseStatement()
 std::unique_ptr<ASTNode> Parser::parseReturnStatement()
 {
     std::unique_ptr<ASTNode> parsedExpression = parseExpression();
-
+    Token previousToken = previous();
     if (!match(TokenType::SEMICOLON))
     {
         reportError("; not found");
         return NULL;
     }
-    return parsedExpression;
+    // return parsedExpression;
+        return std::make_unique<ReturnNode>(
+        std::move(parsedExpression),
+        previousToken.line,  // or current token's line
+        previousToken.column    // or current token's col
+    );
 }
 
 /*

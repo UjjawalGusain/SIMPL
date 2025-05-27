@@ -12,6 +12,21 @@ std::string typeToString(Type type) {
     }
 }
 
+void SymbolTable::updateFunctionReturnType(const std::string& name, Type newType) {
+    auto& globalScope = scopes[0];
+
+    auto it = globalScope.find(name);
+    if (it != globalScope.end()) {
+        if (it->second.isFunction) {
+            it->second.returns = newType;
+        } else {
+            throw std::runtime_error("Error: '" + name + "' is not a function. Cannot update its return type.");
+        }
+    } else {
+        throw std::runtime_error("Error: Function '" + name + "' not found in symbol table for return type update.");
+    }
+}
+
 bool SymbolTable::isDeclaredInCurrentScope(const std::string& name) const {
     if (scopes.empty()) {
         return false;

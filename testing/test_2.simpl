@@ -1,0 +1,16 @@
+func main() {
+    number a = 10;
+    number b = 3;
+    number sum = a + b;
+    number diff = a - b;
+    number prod = a * b;
+    number quot = a / b;
+
+    print(sum);  
+    print(diff); 
+    print(prod); 
+    print(quot);  
+
+    number complexExpr = (a + b) * (prod - quot);
+    print(complexExpr); 
+}
