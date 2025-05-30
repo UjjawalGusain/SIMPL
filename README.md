@@ -4,6 +4,11 @@ SIMPL, which stands for **S**imple **I**ntegrated **M**inimalistic **P**rogrammi
 
 The primary goal of this project is to serve as an educational tool for students learning about the fundamental concepts of compiler construction. The codebase is written in C++ and is structured to be as clear and straightforward as possible, allowing students with a basic understanding of C++ to follow along and grasp the core ideas behind each compiler phase. We believe that by examining and modifying this project, students can gain practical insights into how compilers work.
 
+## Architecture Diagram
+
+![image](https://github.com/user-attachments/assets/87c549b0-4a47-48f3-a159-702f466f37f7)
+
+
 ## Components
 
 ### Lexer
