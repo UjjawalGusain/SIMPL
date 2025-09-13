@@ -1,5 +1,9 @@
 # Simpl Compiler/Interpreter
 
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/992aa4b6-54b9-4e48-a1a6-a9ee099c8eb4" alt="simpl_src_image" width="512" height="512" />
+</div>
+
 SIMPL, which stands for **S**imple **I**ntegrated **M**inimalistic **P**rogramming **L**anguage, is a Turing-complete language designed with education in mind. This project provides a compiler and interpreter for Simpl.
 
 The primary goal of this project is to serve as an educational tool for students learning about the fundamental concepts of compiler construction. The codebase is written in C++ and is structured to be as clear and straightforward as possible, allowing students with a basic understanding of C++ to follow along and grasp the core ideas behind each compiler phase. We believe that by examining and modifying this project, students can gain practical insights into how compilers work.
