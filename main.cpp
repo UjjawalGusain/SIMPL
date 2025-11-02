@@ -19,6 +19,12 @@ int main(int argc, char **argv) {
     }
 
     std::string filename = argv[1];
+    
+    if (filename.size() < 6 || filename.substr(filename.size() - 6) != ".simpl") {
+        std::cerr << "Error: File must have a .simpl extension.\n";
+        return 1;
+    }
+
     std::ifstream inputFile(filename);
 
     if (!inputFile.is_open()) {
